@@ -72,7 +72,7 @@ class AppData {
     this.getAddExpInc();
     this.getInfoDeposit();
     this.getBudget();
-
+    this.saveData();
     this.showResults();
     this.replaceBtn();
   }
@@ -150,6 +150,30 @@ class AppData {
       this.budget + this.incomeMonth - this.expensesMonth + monthDeposit;
     this.budgetDay = Math.floor(this.budgetMonth / 30);
     this.getStatusIncome();
+  }
+
+  saveData() {
+    this.saveToLocalStorage(this);
+    this.saveToCookie(this);
+  }
+
+  saveToLocalStorage(obj) {
+    for (let key in obj) {
+      if (typeof obj[key] === "function") {
+        continue;
+      } 
+      localStorage.setItem(key, JSON.stringify(obj[key]));
+    }
+  }
+
+  saveToCookie(obj) {
+    for (let key in obj) {
+      if (typeof obj[key] === "function") {
+        continue;
+      } 
+      document.cookie = `${key}=${encodeURI(JSON.stringify(obj[key]))}; domain=.${window.location.host.toString()}; path=/;`;
+    }
+    document.cookie = `isLoad=true; domain=.${window.location.host.toString()}; path=/;`;
   }
 
   inputValid() {
@@ -309,6 +333,7 @@ class AppData {
       startBtn.addEventListener("click", this.begin.bind(this));
     } else {
       alert("Введите корректное значение в поле проценты");
+      e.target.value = "";
     }
   }
 
