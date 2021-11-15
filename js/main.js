@@ -273,7 +273,7 @@ class AppData {
       item.value = "";
       item.disabled = false;
     });
-    depositCheck.checked = false;
+    this.uncheck();
     periodSelect.value = 1;
     this.changePeriodValue();
     cancelBtn.style.display = "none";
@@ -296,25 +296,31 @@ class AppData {
 
   getInfoDeposit() {
     if (this.deposit) {
-      this.percentDeposit = depositPercent.value;
-      this.moneyDeposit = depositAmount.value;
+      this.percentDeposit = +depositPercent.value;
+      this.moneyDeposit = +depositAmount.value;
     }
   }
 
   validPercentValue(e) {
-    const value = e.target.value;
     // не работает удаление обработчика - почему?
-    startBtn.removeEventListener("click", this.begin.bind(this));
-    if (isPercent(value)) {
-      startBtn.addEventListener("click", this.begin.bind(this));
+    // startBtn.removeEventListener("click", this.begin.bind(this));
+    if (isPercent(e.target.value)) {
+      // startBtn.addEventListener("click", this.begin.bind(this));
+      console.log("Значение процента корректно!");
     } else {
+      e.target.value = "";
       alert("Введите корректное значение в поле проценты");
+      depositCheck.checked = false;
+      this.depositHandler();
     }
   }
 
   changePercent(e) {
     const selectedValue = e.target.value;
-    if (selectedValue === "other") {
+    if (!selectedValue) {
+      depositCheck.checked = false;
+      this.depositHandler();
+    } else if (selectedValue === "other") {
       depositPercent.value = "";
       depositPercent.style.display = "inline-block";
       depositPercent.addEventListener(
@@ -322,8 +328,24 @@ class AppData {
         this.validPercentValue.bind(this)
       );
     } else {
+      depositPercent.style.display = "none";
       depositPercent.value = selectedValue;
     }
+  }
+
+  clearInputArea(...elems) {
+    elems.forEach((e) => {
+      e.style.display = "none";
+      e.value = "";
+      e.disabled = false;
+    });
+  }
+
+  uncheck() {
+    this.clearInputArea(depositBank, depositAmount, depositPercent);
+    this.deposit = false;
+    depositBank.removeEventListener("change", this.changePercent.bind(this));
+    depositCheck.checked = false;
   }
 
   depositHandler() {
@@ -333,12 +355,7 @@ class AppData {
       this.deposit = true;
       depositBank.addEventListener("change", this.changePercent.bind(this));
     } else {
-      depositBank.style.display = "none";
-      depositAmount.style.display = "none";
-      depositBank.value = "";
-      depositAmount.value = "";
-      this.deposit = false;
-      depositBank.removeEventListener("change", this.changePercent.bind(this));
+      this.uncheck();
     }
   }
 
